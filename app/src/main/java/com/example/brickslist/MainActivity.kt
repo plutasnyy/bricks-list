@@ -8,7 +8,7 @@ import android.widget.ListView
 import com.example.brickslist.database.DatabaseHelper
 
 class MainActivity : AppCompatActivity() {
-    lateinit var db_ : DatabaseHelper
+    lateinit var db : DatabaseHelper
     lateinit var listView: ListView
     var Url = "http://fcds.cs.put.poznan.pl/MyWeb/BL/"
 
@@ -16,21 +16,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        db_ = DatabaseHelper(this)
-        val db = db_.openDatabase()
+        db = DatabaseHelper(this)
+        db.createProject(22.toString())
 
-        val selectQuery = "SELECT  * FROM Colors"
-        val cursor = db.rawQuery(selectQuery, null)
-        if (cursor != null) {
-            cursor.moveToFirst()
-            while (cursor.moveToNext()) {
-                val id = cursor.getString(cursor.getColumnIndex("Name"))
-                Log.d("#DB", id.toString())
-            }
+        val inventoryLists = db.getInventoryList()
+        for(inv in inventoryLists){
+            Log.d("#DB", inv.name)
         }
-        cursor.close()
-
-//        var inventoryLists = db.getInventoryList()
-//        Log.d("DB", inventoryLists.toString())
+        Log.d("DB", inventoryLists.toString())
     }
 }

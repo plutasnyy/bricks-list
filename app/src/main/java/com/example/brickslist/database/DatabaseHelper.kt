@@ -51,12 +51,47 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         Log.d("#DB", "completed..")
     }
 
+    fun getInventoryList(): ArrayList<Inventory> {
 
-    override fun onCreate(db: SQLiteDatabase?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val inventoryList = ArrayList<Inventory>()
+
+        try {
+            this.openDatabase()
+
+            var cursor = this.readableDatabase.query("Inventories" , arrayOf("id, Name, Active, LastAccessed"), null, null, null, null, "LastAccessed DESC")
+
+            if (cursor.moveToFirst()) {
+                do {
+                    var id = cursor.getInt(cursor.getColumnIndex("id"))
+                    var name = cursor.getString(cursor.getColumnIndex("Name"))
+                    var active = cursor.getInt(cursor.getColumnIndex("Active"))
+                    var lastAccessed = cursor.getInt(cursor.getColumnIndex("LastAccessed"))
+
+                    inventoryList.add(Inventory(id, name, active, lastAccessed))
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+            this.close()
+        } catch (e: SQLiteException) {
+
+        }
+        return inventoryList
     }
 
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun createProject(projectCode: String): Int {
+        this.openDatabase()
+
+        val values = ContentValues()
+        values.put("Name", "Projekt $projectCode")
+        values.put("Active", 1)
+        values.put("LastAccessed", Calendar.getInstance().timeInMillis.toInt())
+
+        val id = this.writableDatabase.insert("Inventories", null, values)
+        this.close()
+        return id.toInt()
     }
+
+    override fun onCreate(db: SQLiteDatabase?) {    }
+
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {    }
 }
