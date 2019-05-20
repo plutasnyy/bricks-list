@@ -1,15 +1,14 @@
 package com.example.brickslist
 
-import android.os.Build.ID
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.example.brickslist.database.DatabaseHelper
 
 class MainActivity : AppCompatActivity() {
-    lateinit var db : DatabaseHelper
-    lateinit var listView: ListView
+    lateinit var db: DatabaseHelper
     var Url = "http://fcds.cs.put.poznan.pl/MyWeb/BL/"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,12 +16,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         db = DatabaseHelper(this)
-        db.createProject(22.toString())
+        createInventoryListView()
+    }
 
+    private fun createInventoryListView() {
         val inventoryLists = db.getInventoryList()
-        for(inv in inventoryLists){
-            Log.d("#DB", inv.name)
+
+        val inventoryList: MutableList<String> = arrayListOf()
+        for (inv in inventoryLists) {
+            inventoryList.add(inv.name)
         }
-        Log.d("DB", inventoryLists.toString())
+        val listView = findViewById<ListView>(R.id.inventoryListView)
+        val adapter = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, inventoryList)
+        listView.adapter = adapter
     }
 }
