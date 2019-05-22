@@ -9,8 +9,17 @@ import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.example.brickslist.database.DatabaseHelper
+import com.example.brickslist.model.InventoryPart
+import com.example.brickslist.model.XMLInventory
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonRootName
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.Exception
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -35,9 +44,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNewInventory() {
-        var str = HandlerXML().execute().get()
-        Log.d("ADD_", str)
-
+        XMLHandler().execute().get()
     }
 
     private fun createInventoryListView() {
@@ -61,15 +68,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("StaticFieldLeak")
-    inner class HandlerXML : AsyncTask<String, String, String>() {
+    inner class XMLHandler : AsyncTask<String, String, String>() {
 
-        override fun doInBackground(vararg params: String?): String {
-            return try {
-                URL(getUrl).readText()
-            } catch (e: Exception) {
-                e.message.toString()
-            }
+        private val kotlinXmlMapper = XmlMapper(JacksonXmlModule().apply {
+            setDefaultUseWrapper(false)
+        }).registerKotlinModule()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+
+        private inline fun <reified T : Any> parseAs(doc: String): T {
+            return kotlinXmlMapper.readValue(doc)
         }
 
+        override fun doInBackground(vararg params: String?): String? {
+            try {
+                val document = URL(getUrl).readText()
+                val inventory = parseAs<XMLInventory>(document)
+                for (item in inventory.items){
+                    Log.d("ADD_", item.itemID)
+                }
+            } catch (e: Exception) {
+                Log.d("ADD_", e.message.toString())
+            }
+            return ""
+        }
     }
 }

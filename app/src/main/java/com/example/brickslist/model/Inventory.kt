@@ -6,3 +6,4 @@ class Inventory(
     val active: Int,
     val lastAccessed: Int
 )
+
