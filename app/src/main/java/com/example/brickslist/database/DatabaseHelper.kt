@@ -157,7 +157,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
             var cursor = this.readableDatabase.query(
                 "InventoriesParts",
                 arrayOf("id, InventoryID, TypeID, ItemID, QuantityInSet, QuantityInStore, ColorID, Extra"),
-                "InventoryID = " + code.toString(),
+                "InventoryID = $code",
                 null,
                 null,
                 null,
@@ -219,7 +219,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
     fun getTitle(itemId: Int, colorId: Int): String {
         var cursor: Cursor? = null
-        var name: String = ""
+        var name = ""
         try {
             this.openDatabase()
             cursor = this.readableDatabase.query("Parts", arrayOf("Name"), "Code = $itemId", null, null, null, null)
