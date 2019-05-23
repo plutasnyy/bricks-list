@@ -2,7 +2,6 @@ package com.example.brickslist.model
 import com.fasterxml.jackson.annotation.JsonRootName
 
 import android.graphics.Bitmap
-import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonRootName("ITEM")
 class InventoryPart(

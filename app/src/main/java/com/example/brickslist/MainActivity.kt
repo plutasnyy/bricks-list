@@ -24,7 +24,7 @@ import java.net.URL
 class MainActivity : AppCompatActivity() {
     private lateinit var getUrl: String
     lateinit var db: DatabaseHelper
-    lateinit var projectCode : String
+    lateinit var projectCode: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
         db = DatabaseHelper(this)
         createInventoryListView()
         newInventoryAction()
+
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, Settings::class.java)
+            startActivity(intent)
+        }
     }
 
     private fun createInventoryListView() {
@@ -60,6 +65,7 @@ class MainActivity : AppCompatActivity() {
         addInventoryButton.setOnClickListener {
             projectCode = "70403"
             getUrl = "${GlobalData.partListUrl}$projectCode.xml"
+            Log.d("GETURL", getUrl)
             XMLHandler().execute().get()
         }
     }
