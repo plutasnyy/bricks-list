@@ -24,7 +24,6 @@ import java.net.URL
 class MainActivity : AppCompatActivity() {
     private lateinit var getUrl: String
     lateinit var db: DatabaseHelper
-    var Url = "http://fcds.cs.put.poznan.pl/MyWeb/BL/"
     lateinit var projectCode : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     private fun newInventoryAction() {
         addInventoryButton.setOnClickListener {
             projectCode = "70403"
-            getUrl = "$Url$projectCode.xml"
+            getUrl = "${GlobalData.partListUrl}$projectCode.xml"
             XMLHandler().execute().get()
         }
     }

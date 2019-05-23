@@ -24,9 +24,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         private val DB_NAME = "BrickList.db"
     }
 
-    private var db: SQLiteDatabase? = null
-
-    fun openDatabase(): SQLiteDatabase {
+    private fun openDatabase(): SQLiteDatabase {
         val dbFile = context.getDatabasePath(DB_NAME)
         if (!dbFile.exists()) {
             try {
@@ -64,7 +62,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         try {
             this.openDatabase()
 
-            var cursor = this.readableDatabase.query(
+            val cursor = this.readableDatabase.query(
                 "Inventories",
                 arrayOf("id, Name, Active, LastAccessed"),
                 null,
@@ -76,10 +74,10 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
             if (cursor.moveToFirst()) {
                 do {
-                    var id = cursor.getInt(cursor.getColumnIndex("id"))
-                    var name = cursor.getString(cursor.getColumnIndex("Name"))
-                    var active = cursor.getInt(cursor.getColumnIndex("Active"))
-                    var lastAccessed = cursor.getInt(cursor.getColumnIndex("LastAccessed"))
+                    val id = cursor.getInt(cursor.getColumnIndex("id"))
+                    val name = cursor.getString(cursor.getColumnIndex("Name"))
+                    val active = cursor.getInt(cursor.getColumnIndex("Active"))
+                    val lastAccessed = cursor.getInt(cursor.getColumnIndex("LastAccessed"))
 
                     inventoryList.add(Inventory(id, name, active, lastAccessed))
                 } while (cursor.moveToNext())
@@ -105,25 +103,25 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         return id.toInt()
     }
 
-    fun getImage(itemId: Int, colorId: Int): Bitmap? {
+    private fun getImage(itemId: Int, colorId: Int): Bitmap? {
 
         this.openDatabase()
 
-        var idCursor =
-            this.readableDatabase.query("Parts", arrayOf("id"), "Code = " + itemId.toString(), null, null, null, null)
-        var id: Int = 0
+        val idCursor =
+            this.readableDatabase.query("Parts", arrayOf("id"), "Code = $itemId", null, null, null, null)
+        var id = 0
         if (idCursor.moveToFirst()) {
             id = idCursor.getInt(idCursor.getColumnIndex("id"))
         }
 
-        var colorCursor =
-            this.readableDatabase.query("Colors", arrayOf("id"), "Code = " + colorId.toString(), null, null, null, null)
-        var color: Int = 0
+        val colorCursor =
+            this.readableDatabase.query("Colors", arrayOf("id"), "Code = $colorId", null, null, null, null)
+        var color = 0
         if (colorCursor.moveToFirst()) {
             color = colorCursor.getInt(colorCursor.getColumnIndex("id"))
         }
 
-        var cursor = this.readableDatabase.query(
+        val cursor = this.readableDatabase.query(
             "Codes",
             arrayOf("Image"),
             "ItemID = $id and ColorID = $color",
@@ -136,7 +134,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         if (cursor.count > 0) {
             cursor.moveToFirst()
             if (cursor.getBlob(cursor.getColumnIndex("Image")) != null) {
-                var image = cursor.getBlob(cursor.getColumnIndex("Image"))
+                val image = cursor.getBlob(cursor.getColumnIndex("Image"))
                 val bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
                 return Bitmap.createScaledBitmap(bmp, 250, 250, false)
             }
@@ -154,7 +152,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         try {
             this.openDatabase()
 
-            var cursor = this.readableDatabase.query(
+            val cursor = this.readableDatabase.query(
                 "InventoriesParts",
                 arrayOf("id, InventoryID, TypeID, ItemID, QuantityInSet, QuantityInStore, ColorID, Extra"),
                 "InventoryID = $code",
@@ -166,14 +164,14 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
             if (cursor.moveToFirst()) {
                 do {
-                    var id = cursor.getInt(cursor.getColumnIndex("id"))
-                    var inventoryId = cursor.getInt(cursor.getColumnIndex("InventoryID"))
-                    var typeId = cursor.getInt(cursor.getColumnIndex("TypeID"))
-                    var itemId = cursor.getInt(cursor.getColumnIndex("ItemID"))
-                    var quantityInSet = cursor.getInt(cursor.getColumnIndex("QuantityInSet"))
-                    var quantityInStore = cursor.getInt(cursor.getColumnIndex("QuantityInStore"))
-                    var colorId = cursor.getInt(cursor.getColumnIndex("ColorID"))
-                    var extra = cursor.getInt(cursor.getColumnIndex("Extra"))
+                    val id = cursor.getInt(cursor.getColumnIndex("id"))
+                    val inventoryId = cursor.getInt(cursor.getColumnIndex("InventoryID"))
+                    val typeId = cursor.getInt(cursor.getColumnIndex("TypeID"))
+                    val itemId = cursor.getInt(cursor.getColumnIndex("ItemID"))
+                    val quantityInSet = cursor.getInt(cursor.getColumnIndex("QuantityInSet"))
+                    val quantityInStore = cursor.getInt(cursor.getColumnIndex("QuantityInStore"))
+                    val colorId = cursor.getInt(cursor.getColumnIndex("ColorID"))
+                    val extra = cursor.getInt(cursor.getColumnIndex("Extra"))
 
                     partList.add(
                         InventoryPart(
@@ -201,23 +199,23 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
     fun addPartsInventory(items: List<InventoryPartXML>, projectId: Int) {
         this.openDatabase()
-        for (items in items) {
-            if (items.alternate == "N") {
+        for (itemsXML in items) {
+            if (itemsXML.alternate == "N") {
                 val values = ContentValues()
                 values.put("InventoryID", projectId)
-                values.put("TypeID", items.typeID)
-                values.put("ItemID", items.itemID)
-                values.put("QuantityInSet", items.quantityInSet.toInt())
+                values.put("TypeID", itemsXML.typeID)
+                values.put("ItemID", itemsXML.itemID)
+                values.put("QuantityInSet", itemsXML.quantityInSet.toInt())
                 values.put("QuantityInStore", 0)
-                values.put("ColorID", items.colorID)
-                values.put("Extra", items.extra)
+                values.put("ColorID", itemsXML.colorID)
+                values.put("Extra", itemsXML.extra)
                 this.writableDatabase.insert("InventoriesParts", null, values)
             }
         }
         this.close()
     }
 
-    fun getTitle(itemId: Int, colorId: Int): String {
+    private fun getTitle(itemId: Int, colorId: Int): String {
         var cursor: Cursor? = null
         var name = ""
         try {
