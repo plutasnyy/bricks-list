@@ -12,6 +12,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import com.example.brickslist.model.InventoryPart
+import com.example.brickslist.model.InventoryPartXML
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -155,7 +156,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
             var cursor = this.readableDatabase.query(
                 "InventoriesParts",
-                arrayOf("_id, InventoryID, TypeID, ItemID, QuantityInSet, QuantityInStore, ColorID, Extra"),
+                arrayOf("id, InventoryID, TypeID, ItemID, QuantityInSet, QuantityInStore, ColorID, Extra"),
                 "InventoryID = " + code.toString(),
                 null,
                 null,
@@ -165,7 +166,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
 
             if (cursor.moveToFirst()) {
                 do {
-                    var id = cursor.getInt(cursor.getColumnIndex("_id"))
+                    var id = cursor.getInt(cursor.getColumnIndex("id"))
                     var inventoryId = cursor.getInt(cursor.getColumnIndex("InventoryID"))
                     var typeId = cursor.getInt(cursor.getColumnIndex("TypeID"))
                     var itemId = cursor.getInt(cursor.getColumnIndex("ItemID"))
@@ -196,6 +197,24 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
             Log.i("SQLERR", e.toString())
         }
         return partList
+    }
+
+    fun addPartsInventory(items: List<InventoryPartXML>, projectId: Int) {
+        this.openDatabase()
+        for (items in items) {
+            if (items.alternate == "N") {
+                val values = ContentValues()
+                values.put("InventoryID", projectId)
+                values.put("TypeID", items.typeID)
+                values.put("ItemID", items.itemID)
+                values.put("QuantityInSet", items.quantityInSet.toInt())
+                values.put("QuantityInStore", 0)
+                values.put("ColorID", items.colorID)
+                values.put("Extra", items.extra)
+                this.writableDatabase.insert("InventoriesParts", null, values)
+            }
+        }
+        this.close()
     }
 
     fun getTitle(itemId: Int, colorId: Int): String {

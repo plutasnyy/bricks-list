@@ -25,5 +25,8 @@ class InventoryPartXML(
     var colorID: String,
 
     @set:JsonProperty("EXTRA")
-    var extra: String
+    var extra: String,
+
+    @set:JsonProperty("ALTERNATE")
+    var alternate: String
 )
