@@ -173,20 +173,19 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
                     val colorId = cursor.getInt(cursor.getColumnIndex("ColorID"))
                     val extra = cursor.getInt(cursor.getColumnIndex("Extra"))
 
-                    partList.add(
-                        InventoryPart(
-                            id,
-                            inventoryId,
-                            typeId,
-                            itemId,
-                            quantityInSet,
-                            quantityInStore,
-                            colorId,
-                            extra,
-                            this.getTitle(itemId, colorId),
-                            this.getImage(itemId, colorId)
-                        )
+                    val inventoryPart = InventoryPart(
+                        id,
+                        inventoryId,
+                        typeId,
+                        itemId,
+                        quantityInSet,
+                        quantityInStore,
+                        colorId,
+                        extra,
+                        this.getTitle(itemId, colorId),
+                        this.getImage(itemId, colorId)
                     )
+                    partList.add(inventoryPart)
                 } while (cursor.moveToNext())
             }
             cursor.close()
@@ -213,6 +212,15 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
             }
         }
         this.close()
+    }
+
+    fun changeQuantityInStore(itemId: Int, newQuantity: Int): Long {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("QuantityInStore", newQuantity)
+        val success = db.update("InventoriesParts", values, "ID=?", arrayOf(itemId.toString())).toLong()
+        db.close()
+        return success
     }
 
     private fun getTitle(itemId: Int, colorId: Int): String {

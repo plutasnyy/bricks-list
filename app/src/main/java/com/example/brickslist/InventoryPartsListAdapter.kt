@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.example.brickslist.database.DatabaseHelper
 import com.example.brickslist.model.InventoryPart
 
 class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, private val context: Context) :
@@ -47,10 +48,24 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
 
         deleteBtn.setOnClickListener {
             Log.d("_PARTS", "Trying remove part")
+            if (list[position].quantityInStore > 0) {
+                val db = DatabaseHelper(this.context)
+                val suc = db.changeQuantityInStore(list[position].id, list[position].quantityInStore - 1)
+                if (-1 != suc.toInt()) {
+                    list[position].quantityInStore -= 1
+                }
+            }
             notifyDataSetChanged()
         }
         addBtn.setOnClickListener {
             Log.d("_PARTS", "Trying add part")
+            if (list[position].quantityInStore < list[position].quantityInSet) {
+                val db = DatabaseHelper(this.context)
+                val suc = db.changeQuantityInStore(list[position].id, list[position].quantityInStore + 1)
+                if (-1 != suc.toInt()) {
+                    list[position].quantityInStore += 1
+                }
+            }
             notifyDataSetChanged()
         }
 

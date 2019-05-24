@@ -10,9 +10,9 @@ class InventoryPart(
     var typeID: Int,
     var itemID: Int,
     var quantityInSet: Int,
+    var quantityInStore: Int = 0,
     var colorID: Int,
     var extra: Int,
-    val quantityInStore: Int = 0,
     val title: String,
     val image: Bitmap?
 )

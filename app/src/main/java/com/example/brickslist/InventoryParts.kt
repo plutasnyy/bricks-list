@@ -53,24 +53,27 @@ class InventoryParts : AppCompatActivity() {
         val rootElement = doc.createElement("INVENTORY")
 
         for (item in partsList) {
-            val outputItemXML = doc.createElement("ITEM")
+            val difference = item.quantityInSet - item.quantityInStore
+            if (difference > 0) {
+                val outputItemXML = doc.createElement("ITEM")
 
-            val itemType = doc.createElement("ITEMTYPE")
-            val itemID = doc.createElement("ITEMID")
-            val color = doc.createElement("COLOR")
-            val QTYFILLED = doc.createElement("QTYFILLED")
+                val itemType = doc.createElement("ITEMTYPE")
+                val itemID = doc.createElement("ITEMID")
+                val color = doc.createElement("COLOR")
+                val QTYFILLED = doc.createElement("QTYFILLED")
 
-            itemType.appendChild(doc.createTextNode(item.typeID.toString()))
-            itemID.appendChild(doc.createTextNode(item.itemID.toString()))
-            color.appendChild(doc.createTextNode(item.colorID.toString()))
-            QTYFILLED.appendChild(doc.createTextNode((item.quantityInSet - item.quantityInStore).toString()))
+                itemType.appendChild(doc.createTextNode(item.typeID.toString()))
+                itemID.appendChild(doc.createTextNode(item.itemID.toString()))
+                color.appendChild(doc.createTextNode(item.colorID.toString()))
+                QTYFILLED.appendChild(doc.createTextNode((difference).toString()))
 
-            outputItemXML.appendChild(itemType)
-            outputItemXML.appendChild(itemID)
-            outputItemXML.appendChild(color)
-            outputItemXML.appendChild(QTYFILLED)
+                outputItemXML.appendChild(itemType)
+                outputItemXML.appendChild(itemID)
+                outputItemXML.appendChild(color)
+                outputItemXML.appendChild(QTYFILLED)
 
-            rootElement.appendChild(outputItemXML)
+                rootElement.appendChild(outputItemXML)
+            }
         }
 
         doc.appendChild(rootElement)
