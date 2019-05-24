@@ -18,7 +18,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
-//TODO Refactor this classs
 class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, DB_NAME, null, 1) {
     companion object {
         private val DB_NAME = "BrickList.db"
@@ -35,7 +34,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
                 throw RuntimeException("Error creating source database", e)
             }
         }
-        return SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READWRITE)
+        return SQLiteDatabase.openDatabase(dbFile.path, null,    SQLiteDatabase.OPEN_READWRITE)
     }
 
     @SuppressLint("WrongConstant")
@@ -219,6 +218,15 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         val values = ContentValues()
         values.put("QuantityInStore", newQuantity)
         val success = db.update("InventoriesParts", values, "ID=?", arrayOf(itemId.toString())).toLong()
+        db.close()
+        return success
+    }
+
+    fun changeActiveInventory(inventoryId:Int, newActive:Int):Long{
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("Active", newActive)
+        val success = db.update("Inventories", values, "ID=?", arrayOf(inventoryId.toString())).toLong()
         db.close()
         return success
     }

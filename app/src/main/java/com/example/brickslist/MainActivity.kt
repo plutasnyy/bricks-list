@@ -45,11 +45,12 @@ class MainActivity : AppCompatActivity() {
 
         val stringInventoryList: MutableList<String> = arrayListOf()
         for (inv in inventoryLists) {
-            stringInventoryList.add(inv.name)
+            if (inv.active != 0)
+                stringInventoryList.add(inv.name)
         }
         val listView = findViewById<ListView>(R.id.inventoryListView)
         val adapter = ArrayAdapter(applicationContext, android.R.layout.simple_list_item_1, stringInventoryList)
-        listView.adapter = adapter as ListAdapter?
+        listView.adapter = adapter
 
         inventoryListView.setOnItemClickListener { _, _, position, _ ->
             val inventory = inventoryLists[position]

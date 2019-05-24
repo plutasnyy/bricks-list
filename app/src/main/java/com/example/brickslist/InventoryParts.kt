@@ -1,5 +1,6 @@
 package com.example.brickslist
 
+import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -11,7 +12,6 @@ import com.example.brickslist.model.InventoryPart
 import kotlinx.android.synthetic.main.activity_inventory_parts.*
 import org.w3c.dom.Document
 import java.io.File
-import java.nio.file.Paths
 import java.util.ArrayList
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
@@ -22,6 +22,7 @@ import javax.xml.transform.stream.StreamResult
 
 class InventoryParts : AppCompatActivity() {
 
+    private var projectId: Int = 0
     private lateinit var partsList: ArrayList<InventoryPart>
     private lateinit var db: DatabaseHelper
 
@@ -33,7 +34,7 @@ class InventoryParts : AppCompatActivity() {
         inventoryPartsTitle.text = intent.getStringExtra("inventoryName")
 
         db = DatabaseHelper(this)
-        val projectId = intent.getStringExtra("inventoryId").toInt()
+        projectId = intent.getStringExtra("inventoryId").toInt()
         Log.d("PARTS", projectId.toString())
 
         partsList = db.getPartList(projectId)
@@ -42,6 +43,14 @@ class InventoryParts : AppCompatActivity() {
 
         csvButton.setOnClickListener {
             writeXml()
+        }
+
+        archiveButton.setOnClickListener {
+            val suc: Int = db.changeActiveInventory(projectId, 0).toInt()
+            if (suc != -1) {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 
