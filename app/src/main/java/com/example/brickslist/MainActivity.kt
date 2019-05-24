@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun newInventoryAction() {
         addInventoryButton.setOnClickListener {
-            projectCode = "70403"
+            projectCode = newProjectIdTextView.text.toString()
             getUrl = "${GlobalData.partListUrl}$projectCode.xml"
             Log.d("GETURL", getUrl)
             XMLHandler().execute().get()

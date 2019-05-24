@@ -17,20 +17,68 @@
             android:layout_marginStart="16dp"/>
     <Button
             android:text="@android:string/ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
             android:id="@+id/confirmSettingsButton"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintTop_toBottomOf="@+id/partListUrlEditText"
-            android:layout_marginEnd="18dp" android:layout_marginBottom="580dp"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/oldImgDownloadUrlEdit" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"/>
     <EditText
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="50dp"
             android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/partListUrlEditText"
-            android:layout_marginTop="46dp" android:layout_marginBottom="12dp" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/confirmSettingsButton" app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="46dp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="16dp" android:layout_marginEnd="16dp"/>
+            android:layout_marginStart="16dp" android:layout_marginEnd="16dp" tools:ignore="TextFields"/>
+    <TextView
+            android:text="Image Download URL"
+            android:layout_width="wrap_content"
+            android:layout_height="19dp"
+            android:id="@+id/ImageDownloadURL" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/partListUrlEditText" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"/>
+    <TextView
+            android:text="Alternative Image Download URL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/AlternativeImageDownloadURL" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/imgDownloadUrlEdit"/>
+    <TextView
+            android:text="Old Images Download URL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/OldImagesDownloadURL" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/altImgDownloadEdit"/>
+    <EditText
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/imgDownloadUrlEdit" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/ImageDownloadURL" android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    <EditText
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/altImgDownloadEdit" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/AlternativeImageDownloadURL" android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"/>
+    <EditText
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/oldImgDownloadUrlEdit" android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@+id/OldImagesDownloadURL" android:layout_marginStart="16dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>
