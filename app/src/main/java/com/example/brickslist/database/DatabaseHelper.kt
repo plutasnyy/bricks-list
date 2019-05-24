@@ -11,17 +11,29 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.example.brickslist.GlobalData
 import com.example.brickslist.model.InventoryPart
 import com.example.brickslist.model.InventoryPartXML
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.HttpURLConnection
 import java.util.*
+import com.nostra13.universalimageloader.core.ImageLoader
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.net.URL
+
 
 class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, DB_NAME, null, 1) {
     companion object {
-        private val DB_NAME = "BrickList.db"
+        private const val DB_NAME = "BrickList.db"
     }
+
+    var imageLoader = ImageLoader.getInstance()
 
     private fun openDatabase(): SQLiteDatabase {
         val dbFile = context.getDatabasePath(DB_NAME)
@@ -34,7 +46,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
                 throw RuntimeException("Error creating source database", e)
             }
         }
-        return SQLiteDatabase.openDatabase(dbFile.path, null,    SQLiteDatabase.OPEN_READWRITE)
+        return SQLiteDatabase.openDatabase(dbFile.path, null, SQLiteDatabase.OPEN_READWRITE)
     }
 
     @SuppressLint("WrongConstant")
@@ -103,7 +115,6 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
     }
 
     private fun getImage(itemId: Int, colorId: Int): Bitmap? {
-
         this.openDatabase()
 
         val idCursor =
@@ -112,6 +123,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         if (idCursor.moveToFirst()) {
             id = idCursor.getInt(idCursor.getColumnIndex("id"))
         }
+        idCursor.close()
 
         val colorCursor =
             this.readableDatabase.query("Colors", arrayOf("id"), "Code = $colorId", null, null, null, null)
@@ -119,10 +131,11 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         if (colorCursor.moveToFirst()) {
             color = colorCursor.getInt(colorCursor.getColumnIndex("id"))
         }
-
+        colorCursor.close()
+        Log.d("DOWNLOAD", "$colorId $color")
         val cursor = this.readableDatabase.query(
             "Codes",
-            arrayOf("Image"),
+            arrayOf("id", "Code", "Image"),
             "ItemID = $id and ColorID = $color",
             null,
             null,
@@ -130,19 +143,127 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
             null
         )
 
-        if (cursor.count > 0) {
+        var bmp: Bitmap? = null
+        val isCountGreatherThanZero = cursor.count > 0
+        var code = 0
+        var codesID = 0
+        if (isCountGreatherThanZero) {
             cursor.moveToFirst()
             if (cursor.getBlob(cursor.getColumnIndex("Image")) != null) {
                 val image = cursor.getBlob(cursor.getColumnIndex("Image"))
-                val bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
-                return Bitmap.createScaledBitmap(bmp, 250, 250, false)
+                bmp = BitmapFactory.decodeByteArray(image, 0, image.size)
+            } else {
+                code = cursor.getInt(cursor.getColumnIndex("Code"))
+                codesID = cursor.getInt(cursor.getColumnIndex("id"))
             }
         }
-        this.close()
         cursor.close()
-        idCursor.close()
-        colorCursor.close()
-        return null
+        this.close()
+
+        var downloaded: Bitmap? = null
+        runBlocking {
+            if (bmp == null) {
+                val job: Job
+                if (!isCountGreatherThanZero) {
+                    job = GlobalScope.launch {
+                        Log.d("DOWNLOAD", "IF")
+                        downloaded = downloadOldImage(itemId)
+                        val local = downloaded
+                        if (local != null) {
+                            addNewBitmap(local, itemId, color)
+                        }
+                        Log.d("DOWNLOAD", "FINISHED")
+                    }
+                } else {
+                    job = GlobalScope.launch {
+                        Log.d("DOWNLOAD", "ELSE")
+                        downloaded = downloadImage(code)
+                        if (downloaded == null) {
+                            downloaded = downloadAlternativeImage(itemId, color)
+                        }
+                        val local = downloaded
+                        if (local != null) {
+                            updateBitmap(codesID, local)
+                        }
+                        Log.d("DOWNLOAD", "FINISHED")
+                    }
+                }
+                job.join()
+                bmp = downloaded
+            }
+        }
+
+        Log.d("DOWNLOAD", "OUTSIDE")
+
+        var result: Bitmap? = null
+        if (bmp != null) {
+            result = Bitmap.createScaledBitmap(bmp, 250, 250, false)
+        }
+        return result
+    }
+
+    private fun updateBitmap(id: Int, result: Bitmap) {
+        this.openDatabase()
+        val image = bitmapToByteArray(result)
+        val values = ContentValues()
+        values.put("Image", image)
+        this.writableDatabase.update("Codes", values, "id=?", arrayOf(id.toString())).toLong()
+        this.close()
+    }
+
+    private fun addNewBitmap(result: Bitmap, itemId: Int, color: Int) {
+        this.openDatabase()
+        val image = bitmapToByteArray(result)
+        val values = ContentValues()
+        values.put("ItemID", itemId)
+        values.put("ColorID", color)
+        values.put("Image", image)
+        this.writableDatabase.insert("Codes", null, values)
+        this.close()
+    }
+
+    private fun bitmapToByteArray(image: Bitmap): ByteArray? {
+        val stream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 90, stream)
+        return stream.toByteArray()
+    }
+
+    private fun downloadOldImage(id: Int): Bitmap? {
+        val url = GlobalData.oldImageUrl + id + ".jpg"
+        Log.d("DOWNLOAD_OLD", url)
+        return getImageFromUrl(url)
+    }
+
+    private fun downloadAlternativeImage(id: Int, color: Int): Bitmap? {
+        val url = GlobalData.alternativeNewImageUrl + color + "/" + id + ".jpg"
+        Log.d("DOWNLOAD_ALTERNATIVE", url)
+        return getImageFromUrl(url)
+    }
+
+
+    private fun downloadImage(code: Int): Bitmap? {
+        val url = GlobalData.imageUrl + code
+        Log.d("DOWNLOAD_CLASSIC", url)
+        return getImageFromUrl(url)
+
+    }
+
+    private fun getImageFromUrl(imageUrl: String): Bitmap? {
+        return try {
+            val url = URL(imageUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.doInput = true
+            connection.run {
+                connection.doInput = true
+                connect()
+            }
+            val input = connection.inputStream
+            BitmapFactory.decodeStream(input)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+
     }
 
     fun getPartList(code: Int): ArrayList<InventoryPart> {
@@ -217,12 +338,12 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         val db = this.writableDatabase
         val values = ContentValues()
         values.put("QuantityInStore", newQuantity)
-        val success = db.update("InventoriesParts", values, "ID=?", arrayOf(itemId.toString())).toLong()
+        val success = db.update("InventoriesParts", values, "id=?", arrayOf(itemId.toString())).toLong()
         db.close()
         return success
     }
 
-    fun changeActiveInventory(inventoryId:Int, newActive:Int):Long{
+    fun changeActiveInventory(inventoryId: Int, newActive: Int): Long {
         val db = this.writableDatabase
         val values = ContentValues()
         values.put("Active", newActive)

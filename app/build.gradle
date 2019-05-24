@@ -39,4 +39,8 @@ dependencies {
     implementation group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
     implementation "org.jetbrains.anko:anko-common:0.8.3"
 
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
+
+
 }

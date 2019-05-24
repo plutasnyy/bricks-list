@@ -44,7 +44,7 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
 
         listItemText.text = list[position].title
         subtitle.text = "${list[position].quantityInStore}/${list[position].quantityInSet}"
-//        image.setImageBitmap(list[position].image)
+        image.setImageBitmap(list[position].image)
 
         deleteBtn.setOnClickListener {
             Log.d("_PARTS", "Trying remove part")
