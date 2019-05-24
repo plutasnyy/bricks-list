@@ -79,10 +79,9 @@ class InventoryParts : AppCompatActivity() {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes")
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
 
-        val path = System.getProperty("user.dir")
-        val outDir = File(path, "Output")
-        outDir.mkdir()
-        Log.d("PATH_", path)
+        val outDir = File("data/data/com.example.brickslist")
+        Log.d("PATH_", outDir.path)
+        outDir.createNewFile()
         val file = File(outDir, "text.xml")
         transformer.transform(DOMSource(doc), StreamResult(file))
     }
