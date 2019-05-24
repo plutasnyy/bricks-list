@@ -54,8 +54,8 @@ class InventoryParts : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun writeXml() {
+        partsList = db.getPartList(projectId)
         val docBuilder: DocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val doc: Document = docBuilder.newDocument()
 
@@ -91,7 +91,7 @@ class InventoryParts : AppCompatActivity() {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes")
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
 
-        val outDir = File("data/data/com.example.brickslist")
+        val outDir = File("data/data/")
         Log.d("PATH_", outDir.path)
         outDir.createNewFile()
         val file = File(outDir, "text.xml")
