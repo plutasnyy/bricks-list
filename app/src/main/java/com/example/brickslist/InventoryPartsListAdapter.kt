@@ -43,6 +43,12 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
         val addBtn = view.findViewById(R.id.addPartToInventoryButton) as Button
         val image = view.findViewById(R.id.partImage) as ImageView
 
+        if (list[position].quantityInStore == list[position].quantityInSet) {
+            view.setBackgroundColor(Color.GREEN)
+        } else {
+            view.setBackgroundColor(Color.WHITE)
+        }
+
         listItemText.text = list[position].title
         subtitle.text = "${list[position].quantityInStore}/${list[position].quantityInSet}"
         image.setImageBitmap(list[position].image)
@@ -56,7 +62,7 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
                     list[position].quantityInStore -= 1
                 }
             }
-            parent.getChildAt(position).setBackgroundColor(Color.WHITE)
+            view.setBackgroundColor(Color.WHITE)
             notifyDataSetChanged()
         }
         addBtn.setOnClickListener {
@@ -69,7 +75,7 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
                 }
             }
             if (list[position].quantityInStore == list[position].quantityInSet) {
-                parent.getChildAt(position).setBackgroundColor(Color.GREEN)
+                view.setBackgroundColor(Color.GREEN)
             }
                 notifyDataSetChanged()
         }
