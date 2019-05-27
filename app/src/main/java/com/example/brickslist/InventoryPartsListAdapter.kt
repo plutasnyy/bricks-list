@@ -2,6 +2,7 @@ package com.example.brickslist
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -55,6 +56,7 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
                     list[position].quantityInStore -= 1
                 }
             }
+            parent.getChildAt(position).setBackgroundColor(Color.WHITE)
             notifyDataSetChanged()
         }
         addBtn.setOnClickListener {
@@ -66,7 +68,10 @@ class InventoryPartsListAdapter(private var list: ArrayList<InventoryPart>, priv
                     list[position].quantityInStore += 1
                 }
             }
-            notifyDataSetChanged()
+            if (list[position].quantityInStore == list[position].quantityInSet) {
+                parent.getChildAt(position).setBackgroundColor(Color.GREEN)
+            }
+                notifyDataSetChanged()
         }
 
         return view

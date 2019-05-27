@@ -33,8 +33,6 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         private const val DB_NAME = "BrickList.db"
     }
 
-    var imageLoader = ImageLoader.getInstance()
-
     private fun openDatabase(): SQLiteDatabase {
         val dbFile = context.getDatabasePath(DB_NAME)
         if (!dbFile.exists()) {
@@ -105,7 +103,7 @@ class DatabaseHelper(private val context: Context) : SQLiteOpenHelper(context, D
         this.openDatabase()
 
         val values = ContentValues()
-        values.put("Name", "Projekt $projectCode")
+        values.put("Name", projectCode)
         values.put("Active", 1)
         values.put("LastAccessed", Calendar.getInstance().timeInMillis.toInt())
 
